@@ -53,6 +53,8 @@ class UserManager {
     formData.append('lastname', data.lastname);
     formData.append('email', data.email);
     formData.append('timestamp', data.createdAt);
+    formData.append('password', data.password); // เพิ่มรหัสผ่านลงในข้อมูลที่ส่ง
+    
 
     fetch(scriptURL, {
       method: 'POST',
@@ -129,7 +131,7 @@ if (form) {
         alert(result.message);
         if (result.success) {
           form.reset();
-          setTimeout(() => window.location.href = 'login.html', 1500);
+          setTimeout(() => window.location.href = 'Login.html', 1500);
         } else {
           btn.innerText = originalText;
           btn.disabled = false;

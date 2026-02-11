@@ -481,3 +481,40 @@ body {
     background-color: #ef4444;
     color: white;
 }
+
+/* --- จัดระเบียบข้อความใน User Profile ให้เป็นบรรทัดเดียวกัน --- */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-profile p {
+    margin: 0; /* เอา margin พื้นฐานของแท็ก p ออกไม่ให้เบียดกัน */
+    color: #334155;
+}
+
+#userName {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column; /* เปลี่ยนจากซ้าย-ขวา เป็น บน-ลงล่าง */
+        gap: 15px; /* เพิ่มระยะห่างระหว่างโลโก้กับชื่อผู้ใช้ */
+        padding: 15px;
+        text-align: center;
+    }
+
+    .user-profile {
+        flex-direction: column; /* ให้ชื่อกับปุ่มเรียงซ้อนกันบนมือถือ */
+        width: 100%;
+        gap: 12px;
+    }
+
+    .btn-logout {
+        width: 100%; /* ขยายปุ่มให้ออกแบบมากดง่ายๆ เต็มหน้าจอมือถือ */
+        padding: 10px;
+    }
+}

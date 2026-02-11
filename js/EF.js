@@ -36,7 +36,7 @@ window.logoutUser = function() {
                 }
             }).then(() => {
                     // 3. เปลี่ยนไปหน้า Login
-                    window.location.href = 'login.html';
+                    window.location.href = 'Login.html';
             });
         }
     });
