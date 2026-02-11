@@ -169,22 +169,30 @@ if (form) {
       // 1. ตรวจสอบว่าล็อกอินหรือยัง
       function checkUserSession() {
           const userStr = localStorage.getItem('currentUser');
+          const userName = document.getElementById('userName');
+          const inputName = document.getElementById('inputName');
+          
+          // ตรวจสอบว่าองค์ประกอบเหล่านี้มีอยู่หรือไม่ (เพื่อหลีกเลี่ยง error บนหน้า login/register)
+          if (!userName && !inputName) {
+              return;
+          }
           
           if (!userStr) {
-              // ถ้าไม่มีข้อมูล ให้เด้งไปหน้า Login (เปิด comment บรรทัดล่างเมื่อมีไฟล์ login.html)
-              // window.location.href = 'login.html';
-              document.getElementById('userNameDisplay').innerText = 'Guest User';
+              // ถ้าไม่มีข้อมูล ให้เด้งไปหน้า Login
+              window.location.href = 'login.html';
               return;
           }
 
           const user = JSON.parse(userStr);
           // แสดงชื่อผู้ใช้
-          document.getElementById('userNameDisplay').innerHTML = `
-              👋 สวัสดี, <strong>${user.firstname} ${user.lastname}</strong>
-          `;
+          if (userName) {
+              userName.innerText = user.firstname || user.email;
+          }
           
           // (Option) เติมชื่อผู้จองให้อัตโนมัติใน Modal จอง
-          document.getElementById('inputName').value = `${user.firstname} ${user.lastname}`;
+          if (inputName) {
+              inputName.value = `${user.firstname} ${user.lastname}`;
+          }
       }
 
       // เรียกใช้งานฟังก์ชันเมื่อหน้าเว็บโหลด

@@ -26,6 +26,17 @@
             </button>
         </div>
     </nav>
+
+    <script>
+    // ตรวจสอบว่ามีข้อมูลการล็อกอิน (Session) หรือไม่
+    const isLoggedIn = localStorage.getItem('currentUser');
+    
+    // ถ้าไม่มีข้อมูลการล็อกอิน ให้ดีดไปหน้า login ทันที
+    if (!isLoggedIn) {
+        window.location.href = 'login.html';
+    }
+    </script>
+
     <div class="container">
 
     <div class="container">
