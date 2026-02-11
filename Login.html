@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/Login.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+
+    <form class="form" data-aos="zoom-in">
+        
+        <p class="title" data-aos="fade-down" data-aos-delay="100">Login</p>
+        <p class="message" data-aos="fade-down" data-aos-delay="200">Signin to access your account.</p>
+        
+        <label data-aos="fade-up" data-aos-delay="300">
+            <input class="input" type="email" name="email" placeholder=" " required="">
+            <span>Email</span>
+        </label> 
+        
+        <label data-aos="fade-up" data-aos-delay="400">
+            <input class="input" type="password" name="password" placeholder=" " required="">
+            <span>Password</span>
+        </label>
+
+        <button class="submit" data-aos="flip-up" data-aos-delay="500">Login</button>
+        
+        <p class="signin" data-aos="fade-in" data-aos-delay="600">
+            Don't have an account ? <a href="singin.html">Register</a> 
+        </p>
+    </form>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800, // ความเร็วของการแสดงผล
+            once: true,    // เล่นแค่ครั้งเดียว
+            offset: 0      // สำคัญ: ช่วยให้ Animation ทำงานแม้เนื้อหาน้อย
+        });
+    </script>
+    
+    <script src="Data/Data.js"></script>
+</body>
+</html>

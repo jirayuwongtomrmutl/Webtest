@@ -1,0 +1,483 @@
+/* --- 1. Global & Main Layout --- */
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --success: #10b981;
+  --danger: #ef4444;
+  --text-main: #1e293b;
+  --bg-body: #f1f5f9;
+  --card-bg: #ffffff;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: "Kanit", sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  margin: 0;
+  padding: 40px 20px;
+  background-color: #f7fafe;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+header h1 {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.room-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 30px;
+  min-height: 320px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.room-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.room-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+}
+.room-card.available::before {
+  background-color: var(--success);
+}
+.room-card.busy::before {
+  background-color: var(--danger);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+.available .badge {
+  background: #d1fae5;
+  color: #065f46;
+}
+.busy .badge {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: "Kanit", sans-serif;
+  margin-top: auto;
+}
+.btn-book {
+  background: var(--primary);
+  color: white;
+}
+.btn-book:hover {
+  background: var(--primary-hover);
+}
+.btn-cancel {
+  background: white;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+.btn-cancel:hover {
+  background: var(--danger);
+  color: white;
+}
+
+.info-box {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--danger);
+  font-size: 0.9rem;
+}
+
+/* --- 2. Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-box {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideIn 0.3s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  margin-bottom: 15px;
+  text-align: center;
+}
+.modal-header h2 {
+  margin: 0;
+  color: var(--primary);
+}
+.modal-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #334155;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: "Kanit", sans-serif;
+  box-sizing: border-box;
+}
+
+/* Styles for Time Range Inputs */
+.time-range-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-select {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: "Kanit", sans-serif;
+  background-color: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+.time-range-group span {
+  color: #64748b;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* --- 3. CUSTOM CALENDAR STYLES --- */
+.calendar-wrapper {
+  background-color: #ffffff;
+  color: var(--text-main);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 15px;
+  border: 1px solid #e2e8f0;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.cal-nav-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;      /* ← ทำให้เป็นวงกลม */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.cal-nav-btn:hover {
+  background-color: #f1f5f9;
+  color: var(--primary);
+}
+
+
+.calendar-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  text-align: center;
+}
+
+.cal-date {
+  padding: 10px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.cal-date:hover:not(.disabled):not(.selected) {
+  background-color: #f1f5f9;
+  color: var(--primary);
+}
+
+.cal-date.selected {
+  background-color: var(--primary);
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+}
+
+.cal-date.disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
+.cal-date.today {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-confirm {
+  background: var(--primary);
+  color: white;
+}
+.btn-close {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* ===== History Section ===== */
+.history-section {
+  margin-top: 50px;
+}
+
+.history-title {
+  font-size: 1.4rem;
+  color: #2563eb;
+  margin-bottom: 15px;
+}
+
+/* ===== Table Wrapper ===== */
+.table-wrapper {
+  overflow-x: auto;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Table ===== */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+/* ===== Header ===== */
+.history-table thead {
+  background: linear-gradient(135deg, #e0e7ff, #f8fafc);
+}
+
+.history-table th {
+  padding: 14px 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #1e3a8a;
+  border-bottom: 2px solid #c7d2fe;
+}
+
+/* ===== Body ===== */
+.history-table td {
+  padding: 12px;
+  text-align: center;
+  color: #334155;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+/* ===== Hover ===== */
+.history-table tbody tr:hover {
+  background: #f1f5ff;
+  transition: 0.2s;
+}
+
+/* ===== Last Row ===== */
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+/* ===== Mini Floating Admin Button ===== */
+.admin-fab {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: #1e40af;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.35);
+  z-index: 2000;
+  transition: all 0.25s ease;
+}
+
+.admin-fab:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 24px rgba(30, 64, 175, 0.45);
+}
+
+.admin-fab:active {
+  transform: scale(0.95);
+}
+
+/* --- Navbar Styles --- */
+body {
+    padding-top: 0; /* รีเซ็ต padding ด้านบนของ body เดิม */
+}
+
+.navbar {
+    background-color: #ffffff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+    position: sticky; /* ทำให้เมนูติดด้านบนตลอด */
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+#userNameDisplay {
+    font-weight: 500;
+    color: #334155;
+}
+
+/* ปุ่ม Logout ที่ปรับแต่งแยกออกมา */
+.btn-logout {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: auto; /* ไม่ให้กว้างเต็มจอเหมือนปุ่มอื่น */
+    margin-top: 0;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #ef4444;
+    color: white;
+}
