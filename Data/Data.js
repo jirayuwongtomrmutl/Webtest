@@ -53,6 +53,8 @@ class UserManager {
     formData.append('lastname', data.lastname);
     formData.append('email', data.email);
     formData.append('timestamp', data.createdAt);
+    formData.append('password', data.password); // เพิ่มรหัสผ่านลงในข้อมูลที่ส่ง
+    
 
     fetch(scriptURL, {
       method: 'POST',
