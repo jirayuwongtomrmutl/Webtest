@@ -1,5 +1,5 @@
 // URL ของ Google Apps Script
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxFiw7NPm-UQMEAKgpVCarOTCWuPE5HGi4ppPfU_uNSkh4Io65EIBr0-vV5EDuecJp6zA/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwVbfFQ_hsGmDksTlg4PRKkfXYk7X8lufaLyiBZTxyNy_8W66RZb55w8A7xmpxnZ9ggrQ/exec';
 
 // ========== USER MANAGEMENT SYSTEM ==========
 class UserManager {
@@ -9,13 +9,13 @@ class UserManager {
 
   // โหลด users จาก localStorage
   loadUsers() {
-    const stored = localStorage.getItem('users');
+    const stored = sessionStorage.getItem('users');
     return stored ? JSON.parse(stored) : [];
   }
 
   // บันทึก users ลง localStorage
   saveUsers() {
-    localStorage.setItem('users', JSON.stringify(this.users));
+    sessionStorage.setItem('users', JSON.stringify(this.users));
   }
 
   // ลงทะเบียน user ใหม่
@@ -60,7 +60,7 @@ class UserManager {
     await this.fetchUsers();
     const user = this.users.find(u => u.email === email && u.password === password);
     if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
       return { success: true, message: 'เข้าสู่ระบบสำเร็จ!', user };
     }
     return { success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' };
@@ -188,9 +188,9 @@ if (form) {
   });
   // --- User Session Logic ---
       
-      // 1. ตรวจสอบว่าล็อกอินหรือยัง
-      function checkUserSession() {
-          const userStr = localStorage.getItem('currentUser');
+        // 1. ตรวจสอบว่าล็อกอินหรือยัง
+        function checkUserSession() {
+          const userStr = sessionStorage.getItem('currentUser');
           const userName = document.getElementById('userName');
           const inputName = document.getElementById('inputName');
           

@@ -11,7 +11,7 @@
     <script>
         // 🔒 ดักการเข้าถึง: เช็คว่าเป็น Admin หรือไม่?
         // (ต้องเช็คก่อนที่แท็ก body จะโหลดเสร็จ เพื่อไม่ให้หน้าเว็บแวบขึ้นมา)
-        const isAdmin = localStorage.getItem('isAdmin');
+        const isAdmin = sessionStorage.getItem('isAdmin');
         if (isAdmin !== 'true') {
             // ถ้าไม่ใช่ ให้ดีดกลับไปหน้าเข้าสู่ระบบ (ต้องถอยกลับไป 1 โฟลเดอร์โดยใช้ ../)
             window.location.href = '../login.html'; 
@@ -169,7 +169,7 @@ function adminLogout() {
         confirmButtonText: 'ออกจากระบบ'
     }).then((result) => {
         if (result.isConfirmed) {
-            localStorage.removeItem('isAdmin'); 
+            sessionStorage.removeItem('isAdmin'); 
             window.location.href = '../index.html'; 
         }
     });

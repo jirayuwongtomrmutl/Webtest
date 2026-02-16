@@ -29,7 +29,7 @@
 
     <script>
     // ตรวจสอบว่ามีข้อมูลการล็อกอิน (Session) หรือไม่
-    const isLoggedIn = localStorage.getItem('currentUser');
+    const isLoggedIn = sessionStorage.getItem('currentUser');
     
     // ถ้าไม่มีข้อมูลการล็อกอิน ให้ดีดไปหน้า login ทันที
     if (!isLoggedIn) {
