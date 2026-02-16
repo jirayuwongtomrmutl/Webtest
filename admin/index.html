@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Account Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./admin.css">
+
+    <script>
+        // 🔒 ดักการเข้าถึง: เช็คว่าเป็น Admin หรือไม่?
+        // (ต้องเช็คก่อนที่แท็ก body จะโหลดเสร็จ เพื่อไม่ให้หน้าเว็บแวบขึ้นมา)
+        const isAdmin = sessionStorage.getItem('isAdmin');
+        if (isAdmin !== 'true') {
+            // ถ้าไม่ใช่ ให้ดีดกลับไปหน้าเข้าสู่ระบบ (ต้องถอยกลับไป 1 โฟลเดอร์โดยใช้ ../)
+            window.location.href = '../login.html'; 
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <div>
+            <h2 style="margin: 0;">👨🏻‍💻 Admin Control Panel</h2>
+        </div>
+        <div>
+            <span>ผู้ดูแลระบบ</span>
+            <button onclick="adminLogout()">ออกจากระบบ (Admin)</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>จัดการบัญชีผู้ใช้งาน (User Accounts)</h2>
+            <button onclick="window.location.href='../index.html'" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer;">
+                🏠 กลับไปหน้าจองห้อง
+            </button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ลำดับ</th>
+                    <th>ชื่อ - นามสกุล</th>
+                    <th>อีเมล</th>
+                    <th>วันที่สมัคร</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <tr>
+                    <td>1</td>
+                    <td>สมชาย ใจดี</td>
+                    <td>somchai@example.com</td>
+                    <td>10/10/2023</td>
+                    <td>
+                        <button class="btn-delete" onclick="deleteUser('somchai@example.com')">🗑️ ลบผู้ใช้</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+// ⚠️ เอา URL จาก Apps Script มาวางตรงนี้!
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwVbfFQ_hsGmDksTlg4PRKkfXYk7X8lufaLyiBZTxyNy_8W66RZb55w8A7xmpxnZ9ggrQ/exec';
+
+// ฟังก์ชันดึงข้อมูลผู้ใช้มาแสดงในตาราง
+async function loadUsers() {
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">⏳ กำลังโหลดข้อมูลผู้ใช้งาน...</td></tr>';
+
+    try {
+        // ดึงข้อมูลผ่าน URL โดยเติม ?action=getUsers ไปด้านหลัง
+        const response = await fetch(scriptURL + '?action=getUsers');
+        const users = await response.json();
+        
+        tbody.innerHTML = ''; // ล้างข้อความกำลังโหลด
+
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">ยังไม่มีผู้ใช้งานในระบบ</td></tr>';
+            return;
+        }
+
+// วนลูปสร้างตารางทีละคน
+        users.forEach((user, index) => {
+            const isSystemAdmin = user.email === 'admin'; 
+            
+            // ดึงค่าเวลา (รองรับทั้ง Timestamp พิมพ์ใหญ่และพิมพ์เล็ก)
+            const timeData = user.Timestamp || user.timestamp;
+            let displayTime = '-';
+            
+            if (timeData) {
+                const d = new Date(timeData);
+                // จัดฟอร์แมตให้โชว์ วัน/เดือน/ปี ชั่วโมง:นาที
+                displayTime = d.toLocaleDateString('th-TH') + ' ' + 
+                              d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.';
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${user.firstname} ${user.lastname}</td>
+                <td>${user.email}</td>
+                <td>${displayTime}</td>
+                <td>
+                    ${!isSystemAdmin ? 
+                        `<button class="btn-delete" onclick="deleteUser('${user.email}')">🗑️ ลบ</button>` 
+                        : '<span style="color:#1e40af; font-weight:bold;">⭐ ผู้ดูแลระบบ</span>'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">❌ เกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>';
+    }
+}
+
+// ฟังก์ชันลบผู้ใช้งาน
+function deleteUser(email) {
+    Swal.fire({
+        title: 'ยืนยันการลบบัญชี?',
+        text: "คุณกำลังจะลบอีเมล: " + email + " ออกจากระบบ!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonText: 'ใช่, ลบเลย!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            
+            // แสดงสถานะกำลังลบ
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            // สร้างข้อมูลส่งไปบอก Google Sheets ว่าให้ทำ action=deleteUser
+            let formData = new FormData();
+            formData.append('action', 'deleteUser');
+            formData.append('email', email);
+
+            // ส่งข้อมูลไปลบ
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => response.text())
+                .then(result => {
+                    Swal.fire('ลบสำเร็จ!', 'ลบบัญชีผู้ใช้งานเรียบร้อยแล้ว', 'success');
+                    loadUsers(); // โหลดตารางใหม่ทันทีหลังจากลบเสร็จ
+                })
+                .catch(error => {
+                    Swal.fire('ผิดพลาด!', 'ไม่สามารถลบข้อมูลได้', 'error');
+                });
+        }
+    });
+}
+
+// ฟังก์ชันออกจากระบบของ Admin
+function adminLogout() {
+    Swal.fire({
+        title: 'ออกจากโหมด Admin?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonText: 'ออกจากระบบ'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sessionStorage.removeItem('isAdmin'); 
+            window.location.href = '../index.html'; 
+        }
+    });
+}
+
+// สั่งให้โหลดข้อมูลทันทีที่เปิดหน้านี้ขึ้นมา
+window.onload = loadUsers;
+    </script>
+</body>
+</html>

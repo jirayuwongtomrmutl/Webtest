@@ -1,0 +1,65 @@
+        :root {
+            --primary: #1e40af; /* สีน้ำเงินเข้มสำหรับ Admin */
+            --danger: #ef4444;
+            --bg-body: #f1f5f9;
+        }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 0;
+        }
+        /* Navbar ของ Admin */
+        .admin-nav {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .admin-nav button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        /* ตารางจัดการ User */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        .btn-delete {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }

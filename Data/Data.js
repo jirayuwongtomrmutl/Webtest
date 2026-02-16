@@ -1,5 +1,19 @@
 // URL ของ Google Apps Script
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxFiw7NPm-UQMEAKgpVCarOTCWuPE5HGi4ppPfU_uNSkh4Io65EIBr0-vV5EDuecJp6zA/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwVbfFQ_hsGmDksTlg4PRKkfXYk7X8lufaLyiBZTxyNy_8W66RZb55w8A7xmpxnZ9ggrQ/exec';
+
+// Helper แสดงข้อความ: ใช้ SweetAlert ถ้ามี, ไม่เช่นนั้น fallback เป็น alert
+function showMessage(message, icon = 'info', title = '') {
+  if (window.Swal) {
+    Swal.fire({
+      title: title || undefined,
+      text: message,
+      icon: icon,
+      confirmButtonText: 'ตกลง'
+    });
+  } else {
+    alert(message);
+  }
+}
 
 // ========== USER MANAGEMENT SYSTEM ==========
 class UserManager {
@@ -9,13 +23,13 @@ class UserManager {
 
   // โหลด users จาก localStorage
   loadUsers() {
-    const stored = localStorage.getItem('users');
+    const stored = sessionStorage.getItem('users');
     return stored ? JSON.parse(stored) : [];
   }
 
   // บันทึก users ลง localStorage
   saveUsers() {
-    localStorage.setItem('users', JSON.stringify(this.users));
+    sessionStorage.setItem('users', JSON.stringify(this.users));
   }
 
   // ลงทะเบียน user ใหม่
@@ -37,10 +51,30 @@ class UserManager {
   }
 
   // ตรวจสอบ login
-  login(email, password) {
+  // ดึงรายการผู้ใช้จาก Google Apps Script (อัปเดต local storage)
+  async fetchUsers() {
+    try {
+      const res = await fetch(`${scriptURL}?action=getUsers`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      const data = await res.json();
+      // ถ้าได้ข้อมูล ให้อัปเดตรายการผู้ใช้และบันทึกลง localStorage
+      if (Array.isArray(data)) {
+        this.users = data;
+        this.saveUsers();
+      }
+      return { success: true };
+    } catch (err) {
+      console.warn('fetchUsers failed, using local users:', err);
+      return { success: false, error: err };
+    }
+  }
+
+  // ตรวจสอบ login (ตอนนี้เป็น async เพื่อให้แน่ใจว่าใช้รายการผู้ใช้ปัจจุบันจากเซิร์ฟเวอร์)
+  async login(email, password) {
+    await this.fetchUsers();
     const user = this.users.find(u => u.email === email && u.password === password);
     if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
       return { success: true, message: 'เข้าสู่ระบบสำเร็จ!', user };
     }
     return { success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' };
@@ -77,7 +111,7 @@ if (form) {
                       !form.querySelector('input[name="firstname"]');
   const isRegisterPage = form.querySelector('input[name="firstname"]') !== null;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const btn = form.querySelector('.submit');
     const originalText = btn.innerText;
@@ -95,7 +129,7 @@ if (form) {
 
         // ตรวจสอบว่าข้อมูลถูกกรอกครบถ้วน
         if (!firstname || !lastname || !email || !password || !confirmPassword) {
-          alert('โปรดกรอกข้อมูลให้ครบถ้วน');
+           showMessage('โปรดกรอกข้อมูลให้ครบถ้วน', 'warning');
           btn.innerText = originalText;
           btn.disabled = false;
           return;
@@ -104,7 +138,7 @@ if (form) {
         // ตรวจสอบรูปแบบอีเมล
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-          alert('โปรดกรอกอีเมลให้ถูกต้อง');
+           showMessage('โปรดกรอกอีเมลให้ถูกต้อง', 'warning');
           btn.innerText = originalText;
           btn.disabled = false;
           return;
@@ -112,7 +146,7 @@ if (form) {
 
         // ตรวจสอบว่ารหัสผ่านตรงกันไหม
         if (password !== confirmPassword) {
-          alert('รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง');
+           showMessage('รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง', 'error');
           btn.innerText = originalText;
           btn.disabled = false;
           return;
@@ -120,15 +154,15 @@ if (form) {
 
         // ตรวจสอบความยาวรหัสผ่าน
         if (password.length < 6) {
-          alert('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+           showMessage('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 'warning');
           btn.innerText = originalText;
           btn.disabled = false;
           return;
         }
 
         // ลงทะเบียน
-        const result = userManager.register(firstname, lastname, email, password);
-        alert(result.message);
+        const result = await userManager.register(firstname, lastname, email, password);
+          showMessage(result.message, result.success ? 'success' : 'error');
         if (result.success) {
           form.reset();
           setTimeout(() => window.location.href = 'Login.html', 1500);
@@ -143,14 +177,14 @@ if (form) {
 
         // ตรวจสอบว่าข้อมูลถูกกรอกครบถ้วน
         if (!email || !password) {
-          alert('โปรดกรอกอีเมลและรหัสผ่าน');
+           showMessage('โปรดกรอกอีเมลและรหัสผ่าน', 'warning');
           btn.innerText = originalText;
           btn.disabled = false;
           return;
         }
 
-        const result = userManager.login(email, password);
-        alert(result.message);
+        const result = await userManager.login(email, password);
+          showMessage(result.message, result.success ? 'success' : 'error');
         if (result.success) {
           form.reset();
           setTimeout(() => window.location.href = 'index.html', 1500);
@@ -161,16 +195,16 @@ if (form) {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('เกิดข้อผิดพลาด');
+        showMessage('เกิดข้อผิดพลาด', 'error');
       btn.innerText = originalText;
       btn.disabled = false;
     }
   });
   // --- User Session Logic ---
       
-      // 1. ตรวจสอบว่าล็อกอินหรือยัง
-      function checkUserSession() {
-          const userStr = localStorage.getItem('currentUser');
+        // 1. ตรวจสอบว่าล็อกอินหรือยัง
+        function checkUserSession() {
+          const userStr = sessionStorage.getItem('currentUser');
           const userName = document.getElementById('userName');
           const inputName = document.getElementById('inputName');
           

@@ -29,7 +29,7 @@
 
     <script>
     // ตรวจสอบว่ามีข้อมูลการล็อกอิน (Session) หรือไม่
-    const isLoggedIn = localStorage.getItem('currentUser');
+    const isLoggedIn = sessionStorage.getItem('currentUser');
     
     // ถ้าไม่มีข้อมูลการล็อกอิน ให้ดีดไปหน้า login ทันที
     if (!isLoggedIn) {
@@ -474,12 +474,21 @@ nextBtn.style.opacity = nextBtn.disabled ? "0.3" : "1";
         const pass = document.getElementById("adminPassword").value;
         if (pass === ADMIN_PASSWORD) {
           isAdmin = true;
-          localStorage.setItem("isAdmin", "true");
+          sessionStorage.setItem("isAdmin", "true");
           closeAdminLogin();
-          alert("เข้าสู่ระบบ Admin สำเร็จ");
-          renderHistory();
+          if (window.Swal) {
+            Swal.fire({ icon: 'success', text: 'เข้าสู่ระบบ Admin สำเร็จ', confirmButtonText: 'ตกลง' })
+              .then(() => window.location.href = 'admin/index.html');
+          } else {
+            alert('เข้าสู่ระบบ Admin สำเร็จ');
+            window.location.href = 'admin/index.html';
+          }
         } else {
-          alert("รหัสผ่านไม่ถูกต้อง");
+          if (window.Swal) {
+            Swal.fire({ icon: 'error', text: 'รหัสผ่านไม่ถูกต้อง', confirmButtonText: 'ตกลง' });
+          } else {
+            alert('รหัสผ่านไม่ถูกต้อง');
+          }
         }
       }
 
@@ -524,7 +533,11 @@ nextBtn.style.opacity = nextBtn.disabled ? "0.3" : "1";
         const end = document.getElementById("endTime").value;
 
         if (!name || !dateStr || !start || !end) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วน (ชื่อ, วันที่, และช่วงเวลา)");
+          if (window.Swal) {
+            Swal.fire({ icon: 'warning', text: 'กรุณากรอกข้อมูลให้ครบถ้วน (ชื่อ, วันที่, และช่วงเวลา)', confirmButtonText: 'ตกลง' });
+          } else {
+            alert('กรุณากรอกข้อมูลให้ครบถ้วน (ชื่อ, วันที่, และช่วงเวลา)');
+          }
           return;
         }
 
@@ -680,8 +693,9 @@ nextBtn.style.opacity = nextBtn.disabled ? "0.3" : "1";
         const userSection = document.getElementById('userSection');
         const userNameSpan = document.getElementById('userName');
         try {
-          const current = JSON.parse(localStorage.getItem('currentUser'));
-          if (current && current.email) {
+          const stored = sessionStorage.getItem('currentUser');
+          const current = stored ? JSON.parse(stored) : null;
+          if (current && (current.email || current.firstname)) {
             userNameSpan.innerText = current.firstname || current.email;
             userSection.style.display = 'flex';
           } else {

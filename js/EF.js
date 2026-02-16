@@ -21,8 +21,8 @@ window.logoutUser = function() {
     }).then((result) => {
         if (result.isConfirmed) {
             // 1. ลบข้อมูล Session
-            localStorage.removeItem('currentUser'); 
-            localStorage.removeItem('isAdmin'); // ลบ Admin ด้วย (ถ้ามี)
+            sessionStorage.removeItem('currentUser'); 
+            sessionStorage.removeItem('isAdmin'); // ลบ Admin ด้วย (ถ้ามี)
 
             // 2. แสดง Success เล็กน้อยก่อนเปลี่ยนหน้า (เพื่อให้ดูนุ่มนวล)
             Swal.fire({

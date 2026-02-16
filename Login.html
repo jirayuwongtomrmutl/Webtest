@@ -12,22 +12,22 @@
 
     <form class="form" data-aos="zoom-in">
         
-        <p class="title" data-aos="fade-down" data-aos-delay="100">Login</p>
-        <p class="message" data-aos="fade-down" data-aos-delay="200">Signin to access your account.</p>
+        <p class="title" data-aos="fade-down" data-aos-delay="75">Login</p>
+        <p class="message" data-aos="fade-down" data-aos-delay="125">Signin to access your account.</p>
         
-        <label data-aos="fade-up" data-aos-delay="300">
+        <label data-aos="fade-up" data-aos-delay="175">
             <input class="input" type="email" name="email" placeholder=" " required="">
             <span>Email</span>
         </label> 
         
-        <label data-aos="fade-up" data-aos-delay="400">
+        <label data-aos="fade-up" data-aos-delay="225">
             <input class="input" type="password" name="password" placeholder=" " required="">
             <span>Password</span>
         </label>
 
-        <button class="submit" data-aos="flip-up" data-aos-delay="500">Login</button>
+        <button class="submit" data-aos="flip-up" data-aos-delay="275">Login</button>
         
-        <p class="signin" data-aos="fade-in" data-aos-delay="600">
+        <p class="signin" data-aos="fade-in" data-aos-delay="325">
             Don't have an account ? <a href="singin.html">Register</a> 
         </p>
     </form>
@@ -35,12 +35,96 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({
-            duration: 800, // ความเร็วของการแสดงผล
+            duration: 500, // ความเร็วของการแสดงผล
             once: true,    // เล่นแค่ครั้งเดียว
             offset: 0      // สำคัญ: ช่วยให้ Animation ทำงานแม้เนื้อหาน้อย
         });
     </script>
     
-    <script src="Data/Data.js"></script>
+    <!-- ใช้สคริปต์ล็อกอินแบบส่งไปยัง Apps Script โดยตรง
+         เปลี่ยนค่า scriptURL เป็น URL ที่ได้จากการ Deploy ใหม่ของคุณ -->
+    <script>
+        // ใส่ URL ของ Apps Script ที่ Deploy รอบใหม่ตรงนี้
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzJV7Td3S0TCfkgSpWmM5YpFFyqklee0fNM3KSAlLHK4NU-wBxBMZ6jDrRfYcjzDO3EFA/exec';
+
+        const loginForm = document.querySelector('.form');
+        const submitBtn = document.querySelector('.submit');
+
+        if (loginForm && submitBtn) {
+            loginForm.addEventListener('submit', e => {
+                e.preventDefault(); // กันหน้าเว็บรีเฟรช
+
+                // เปลี่ยนปุ่มเป็นสถานะกำลังโหลด
+                const originalText = submitBtn.innerText;
+                submitBtn.innerText = 'กำลังตรวจสอบข้อมูล...';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.4';
+
+                // เตรียมข้อมูลส่งไปให้ Apps Script
+                const formData = new FormData(loginForm);
+                formData.append('action', 'login'); // บอกหลังบ้านว่านี่คือคำสั่ง login
+
+                // สำหรับ Admin Bypass (ถ้ากรอก admin / 123 เข้าหน้าแอดมินเลยไม่ต้องรอโหลด)
+                if (formData.get('email') === 'admin' && formData.get('password') === '123') {
+                    sessionStorage.setItem('isAdmin', 'true');
+                    window.location.href = 'admin/index.html';
+                    return;
+                }
+
+                // ตรวจสอบว่า user ใส่ scriptURL จริงหรือยัง
+                if (!scriptURL || scriptURL.includes('ใส่_URL')) {
+                    const msg = 'ยังไม่ได้ตั้งค่า scriptURL ของ Apps Script ใน Login.html';
+                    console.error(msg);
+                    if (window.Swal) Swal.fire({ icon: 'warning', text: msg, confirmButtonText: 'ตกลง' }); else alert(msg);
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    return;
+                }
+
+                // ยิงข้อมูลไปถาม Google Sheets (รองรับ response ทั้ง JSON และ text)
+                fetch(scriptURL, { method: 'POST', body: formData })
+                    .then(async response => {
+                        const ct = response.headers.get('content-type') || '';
+                        const text = await response.text();
+                        let data = null;
+                        if (ct.includes('application/json')) {
+                            try { data = JSON.parse(text); } catch (e) { throw new Error('Invalid JSON response: ' + text); }
+                        } else {
+                            // พยายาม parse เป็น JSON ถ้าไม่สำเร็จ ให้ถือเป็นข้อความธรรมดา
+                            try { data = JSON.parse(text); } catch (e) { data = { status: 'error', message: text || ('HTTP ' + response.status) }; }
+                        }
+                        return { ok: response.ok, status: response.status, data };
+                    })
+                    .then(({ ok, status, data }) => {
+                        if (!ok) throw new Error('HTTP ' + status + ': ' + (data && data.message ? data.message : JSON.stringify(data)));
+                        if (data && data.status === 'success') {
+                            sessionStorage.setItem('currentUser', JSON.stringify(data.user));
+                            if (window.Swal) {
+                                Swal.fire({ icon: 'success', text: 'เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ' + (data.user.firstname || data.user.email), confirmButtonText: 'ตกลง' })
+                                    .then(() => window.location.href = 'index.html');
+                            } else {
+                                alert('เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ' + (data.user.firstname || data.user.email));
+                                window.location.href = 'index.html';
+                            }
+                        } else {
+                            const msg = (data && data.message) ? data.message : 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                            if (window.Swal) Swal.fire({ icon: 'error', text: msg, confirmButtonText: 'ตกลง' }); else alert(msg);
+                            submitBtn.innerText = originalText;
+                            submitBtn.disabled = false;
+                            submitBtn.style.opacity = '1';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Login fetch error:', error);
+                        const msg = '❌ ระบบขัดข้อง ไม่สามารถเชื่อมต่อฐานข้อมูลได้\n' + (error && error.message ? error.message : '');
+                        if (window.Swal) Swal.fire({ icon: 'error', text: msg, confirmButtonText: 'ตกลง' }); else alert(msg);
+                        submitBtn.innerText = originalText;
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
